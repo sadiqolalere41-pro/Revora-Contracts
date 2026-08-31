@@ -37,16 +37,16 @@ fn setup() -> (Env, RevoraRevenueShareClient<'static>, Address, Address) {
     let token = Address::generate(&env);
     let payout_asset = Address::generate(&env);
 
-    client.register_offering(
-        &issuer,
+    client.register_offering(&issuer,
+        &Vec::new(&env),
+        &1u32,
         &symbol_short!("def"),
         &token,
         &5_000,
         &payout_asset,
         &0,
         &symbol_short!(""),
-        &0,
-    );
+        &0);
     client.set_snapshot_config(&issuer, &symbol_short!("def"), &token, &true);
 
     (env, client, issuer, token)
@@ -327,8 +327,7 @@ fn cast_vote_fails_on_nonexistent_proposal() {
     commit_and_apply(&env, &client, &issuer, &token, 1, &[(holder.clone(), 5_000)]);
 
     // Proposal id 99 was never created.
-    let result =
-        client.try_cast_vote(&issuer, &symbol_short!("def"), &token, &99, &holder, &true);
+    let result = client.try_cast_vote(&issuer, &symbol_short!("def"), &token, &99, &holder, &true);
     assert!(
         matches!(result, Err(Ok(RevoraError::LimitReached))),
         "should fail with LimitReached for unknown proposal"
